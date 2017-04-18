@@ -25,8 +25,8 @@ function NarrowItDownController(MenuSearchService){
 var promise=  MenuSearchService.getMatchedMenuItems(searchWord);
 promise.then(function (response) {
 
-    menuSearch.fulldata=response;
-    console.log(response);
+    menuSearch.fulldata=response.menu_items;
+    console.log(menuSearch.fulldata.length);
 })
   .catch(function (error) {
     console.log(error);
@@ -35,6 +35,7 @@ promise.then(function (response) {
 };
 
 menuSearch.removeItems=function(itemIndex){
+    console.log(itemIndex);
   MenuSearchService.removeItems(itemIndex);
 }
 
@@ -45,6 +46,7 @@ MenuSearchService.$inject=['$http','ApiBasePath']
 function MenuSearchService($http,ApiBasePath){
 var service=this;
 
+var foundItems=[];
 service.getMatchedMenuItems=function(searchWord){
   console.log(searchWord);
 
@@ -53,16 +55,17 @@ method: "GET",
 url:(ApiBasePath+"/menu_items.json")
 
 }).then(function (response){
-  var foundItems=response.data.menu_items;
-console.log(response.data);
+foundItems=response.data;
+console.log(foundItems.menu_items);
 
-  for (var i = 0; i < foundItems.length; i++) {
-      if(foundItems[i].description.indexOf(searchWord)!=-1){
-      foundItems.splice(i,1);
-     console.log(foundItems.length);
+  for (var i = 0; i < foundItems.menu_items.length; i++) {
+      if(foundItems.menu_items[i].description.indexOf(searchWord)==-1){
+      console.log(foundItems.menu_items[i].description+' index '+foundItems.menu_items[i].description.indexOf(searchWord));
+      foundItems.menu_items.splice(i,1);
+
     }
   }
-      //  console.log(foundItems);
+ //  console.log(foundItems);
   return foundItems;
 })
 };
@@ -70,7 +73,8 @@ console.log(response.data);
 
 
 service.removeItems=function(itemIndex){
-  menuItems.splice(itemIndex,1);
+
+  foundItems.menu_items.splice(itemIndex,1);
 };
 
 
